@@ -1,0 +1,4 @@
+service.name = "example-app"
+and duration_ms > 50
+order by start_time desc
+limit 50

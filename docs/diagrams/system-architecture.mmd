@@ -1,0 +1,69 @@
+---
+config:
+  layout: elk
+  theme: neutral
+---
+flowchart TB
+
+subgraph Code_and_Build["Code and Build"]
+  Developer["Developer"]
+  GitHub_Repo["GitHub Repo"]
+  GitHub_Actions_CI["GitHub Actions - Build and Test"]
+  Docker_Build["Docker Image Build"]
+  Container_Registry["Container Registry"]
+  Developer --> GitHub_Repo
+  GitHub_Repo --> GitHub_Actions_CI
+  GitHub_Actions_CI --> Docker_Build
+  Docker_Build --> Container_Registry
+end
+
+subgraph Deployment_and_Operations["Deployment and Operations"]
+direction TB
+
+  subgraph Runtime["Runtime"]
+    Docker_Runtime["Docker - Container Runtime"]
+    Docker_Compose["Docker Compose - Multi-Container Orchestration"]
+    Application_Services["Application Services - Containerised Apps"]
+    OTel_Collector["OpenTelemetry Collector"]
+    Container_Registry --> Docker_Runtime
+    Docker_Runtime --> Docker_Compose
+    Docker_Compose --> Application_Services
+    Docker_Compose --> OTel_Collector
+  end
+
+  subgraph Observability_and_Incidents["Observability and Incidents"]
+    Traefik["Traefik - TLS and Auth"]
+    OTLP_Endpoint["OTLP Ingest Endpoint (secured)"]
+    SigNoz_UI["SigNoz UI"]
+    ClickHouse_DB["ClickHouse Database"]
+    Alerts["Alerts to Slack or Email"]
+    Incident_Channel["Incident Channel"]
+    GitHub_Issue["GitHub Issue - Incident Record"]
+    Five_Min_Check["Five Minute Stability Check"]
+    Status_Updates["Status Updates per Severity"]
+    Hotfix_After_Stable["Hotfix After Stable"]
+    Rollback_Job["GitHub Actions - Rollback Job"]
+    Previous_Image["Previous Stable Image Tag"]
+
+    Traefik --> SigNoz_UI
+    Traefik --> OTLP_Endpoint
+    Application_Services -- OTLP --> OTel_Collector
+    OTel_Collector --> ClickHouse_DB
+    ClickHouse_DB --> SigNoz_UI
+    SigNoz_UI --> Alerts
+    Alerts --> Incident_Channel
+    Incident_Channel --> GitHub_Issue
+    GitHub_Issue --> Five_Min_Check
+    Five_Min_Check -->|Stabilising| Status_Updates
+    Status_Updates --> Hotfix_After_Stable
+    Five_Min_Check -->|Not stabilising by 5 min| Rollback_Job
+    Rollback_Job --> Previous_Image
+    Previous_Image --> Docker_Compose
+  end
+end
+
+Persistent_Volume["Persistent Volume for ClickHouse"] --> ClickHouse_DB
+ClickHouse_DB --> Backup_Job["Backup Job to Object Storage"]
+Secrets_and_Config["Secrets and Env Config"] --> Application_Services
+Secrets_and_Config --> Traefik
+Retention_Policy["Retention Policy in ClickHouse"] --> ClickHouse_DB

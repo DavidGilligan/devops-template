@@ -1,0 +1,23 @@
+# Env and secrets
+.env
+.env.*.local
+config/traefik/acme.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+
+# OS and editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Docker
+*.log
+
+# Node tools used in linting
+node_modules/

@@ -1,0 +1,44 @@
+# Dynamic configuration for Traefik
+http:
+  middlewares:
+    basic-auth:
+      basicAuth:
+        users:
+          - "${TRAEFIK_BASIC_AUTH}"
+
+    otlp-allowlist:
+      ipWhiteList:
+        sourceRange:
+          - "${OTLP_ALLOWLIST}"
+
+  routers:
+    observability:
+      rule: "Host(`${OBS_DOMAIN}`)"
+      entryPoints:
+        - websecure
+      service: observability
+      middlewares:
+        - basic-auth
+      tls:
+        certResolver: letsencrypt
+
+    otlp:
+      rule: "Host(`${OTLP_DOMAIN}`)"
+      entryPoints:
+        - websecure
+      service: otlp
+      middlewares:
+        - otlp-allowlist
+      tls:
+        certResolver: letsencrypt
+
+  services:
+    observability:
+      loadBalancer:
+        servers:
+          - url: "http://signoz-frontend:3301"
+
+    otlp:
+      loadBalancer:
+        servers:
+          - url: "http://otel-collector:4318"

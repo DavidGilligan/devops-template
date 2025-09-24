@@ -1,0 +1,8 @@
+version: "3.9"
+services:
+  signoz-frontend:
+    ports:
+      - "3301:3301"
+  otel-collector:
+    environment:
+      - LOG_LEVEL=info

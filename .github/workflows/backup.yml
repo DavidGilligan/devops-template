@@ -1,0 +1,38 @@
+name: Nightly Backup
+
+on:
+  workflow_dispatch:
+    inputs:
+      host:
+        description: "SSH host, eg user@server.example.com"
+        required: true
+  schedule:
+    - cron: "30 2 * * *"   # 02:30 UTC nightly
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run backup over SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ github.event.inputs.host || secrets.BACKUP_SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script_stop: true
+          script: |
+            set -e
+            cd ~/devops-template
+            export S3_BUCKET="${{ secrets.S3_BUCKET }}"
+            export S3_ENDPOINT="${{ secrets.S3_ENDPOINT }}"
+            export S3_ACCESS_KEY_ID="${{ secrets.S3_ACCESS_KEY_ID }}"
+            export S3_SECRET_ACCESS_KEY="${{ secrets.S3_SECRET_ACCESS_KEY }}"
+            bash scripts/backup.sh

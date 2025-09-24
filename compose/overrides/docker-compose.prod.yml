@@ -1,0 +1,14 @@
+version: "3.9"
+services:
+  signoz-frontend:
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+  otel-collector:
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M

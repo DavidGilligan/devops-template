@@ -1,0 +1,64 @@
+name: Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      host:
+        description: "SSH host, eg user@server.example.com"
+        required: true
+      fallback_tag:
+        description: "Fallback image tag if no .previous_image.txt is present"
+        required: false
+        default: "latest"
+
+permissions:
+  contents: read
+  packages: read
+
+env:
+  REGISTRY: ${{ vars.REGISTRY || 'ghcr.io' }}
+  IMAGE_NAME: ${{ vars.IMAGE_NAME || 'example-app' }}
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Roll back over SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ github.event.inputs.host }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script_stop: true
+          script: |
+            set -e
+            cd ~/devops-template
+
+            # Determine previous image reference
+            if [ -f .previous_image.txt ]; then
+              PREV_IMAGE=$(cat .previous_image.txt)
+              echo "Found previous image: $PREV_IMAGE"
+            else
+              echo "No .previous_image.txt found. Using fallback tag."
+              PREV_IMAGE="${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.fallback_tag }}"
+              echo "Fallback image: $PREV_IMAGE"
+            fi
+
+            # Log in and pull the target image
+            docker login ${{ env.REGISTRY }} -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
+            docker pull "$PREV_IMAGE"
+
+            # Export override so compose uses the chosen image
+            export IMAGE_OVERRIDE="$PREV_IMAGE"
+
+            # Restart services
+            docker compose pull
+            docker compose up -d
+
+            echo "Rollback complete. Current app image:"
+            docker ps --format '{{.Image}}' | grep '${{ env.IMAGE_NAME }}' || true

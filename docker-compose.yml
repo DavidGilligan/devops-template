@@ -1,0 +1,36 @@
+version: "3.9"
+name: devops-template
+
+services:
+  # Reverse proxy with TLS and auth
+  traefik:
+    extends:
+      file: compose/traefik.yml
+      service: traefik
+    networks:
+      - observability_net
+
+  # Observability core
+  clickhouse:
+    extends:
+      file: compose/observability.yml
+      service: clickhouse
+  signoz-query-service:
+    extends:
+      file: compose/observability.yml
+      service: signoz-query-service
+  signoz-frontend:
+    extends:
+      file: compose/observability.yml
+      service: signoz-frontend
+  otel-collector:
+    extends:
+      file: compose/observability.yml
+      service: otel-collector
+
+networks:
+  observability_net:
+    driver: bridge
+
+volumes:
+  clickhouse_data: {}

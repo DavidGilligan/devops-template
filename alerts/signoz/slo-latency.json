@@ -1,0 +1,10 @@
+{
+  "name": "Latency SLO breach",
+  "condition": "p95_latency_ms > 500",
+  "for": "10m",
+  "severity": "critical",
+  "annotations": {
+    "summary": "P95 latency above 500ms",
+    "description": "Check database, upstreams, and resource saturation."
+  }
+}

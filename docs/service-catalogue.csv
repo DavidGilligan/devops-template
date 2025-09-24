@@ -1,0 +1,2 @@
+service,owners,oncall,runbook,dashboards
+example-app,"alice@example.com; bob@example.com",#oncall,docs/runbooks/example-service.md,https://observability.example.com

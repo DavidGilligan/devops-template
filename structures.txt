@@ -1,0 +1,100 @@
+
+C:\Users\david\devops-template
+devops-template/
+├── .env.example                          
+├── .gitignore
+├── .gitattributes
+├── .editorconfig
+├── LICENSE
+├── README.md                             
+├── Makefile                              
+├── docs/
+│   ├── architecture.md                   
+│   ├── production-considerations.md      
+│   ├── evaluation-metrics.md             
+│   ├── operations-handbook.md           
+│   ├── runbooks/
+│   │   ├── incident-checklist.md         
+│   │   ├── example-service.md            
+│   │   └── restore-clickhouse.md       
+│   ├── diagrams/
+│   │   ├── system-architecture.mmd     
+│   │   └── incident-flow.mmd
+│   └── service-catalogue.csv            
+├── alerts/
+│   └── signoz/
+│       ├── slo-error-rate.json          
+│       ├── slo-latency.json
+│       └── README.md                     
+├── config/
+│   ├── clickhouse/
+│   │   ├── config.d/                    
+│   │   │   ├── macros.xml
+│   │   │   └── users.d/
+│   │   │       └── users.xml
+│   │   └── README.md
+│   ├── traefik/                         
+│   │   ├── traefik.yml                   
+│   │   ├── dynamic.yml                   
+│   │   ├── acme.json                    
+│   │   └── README.md
+│   └── signoz/
+│       └── README.md
+├── otel-config/
+│   ├── collector-config.yaml            
+│   └── README.md
+├── compose/
+│   ├── observability.yml                 
+│   ├── traefik.yml                       
+│   ├── backup.yml                        
+│   └── overrides/
+│       ├── docker-compose.dev.yml        
+│       └── docker-compose.prod.yml      
+├── docker-compose.yml                    
+├── scripts/
+│   ├── setup.sh                          
+│   ├── verify.sh                         
+│   ├── backup.sh                         
+│   ├── restore.sh                        
+│   ├── tag_previous.sh                   
+│   └── gen_env_docs.sh                   
+├── app/                                  
+│   ├── Dockerfile
+│   ├── main.py                           
+│   ├── requirements.txt
+│   ├── otel_bootstrap.py                 
+│   ├── tests/
+│   │   └── test_smoke.py
+│   └── README.md
+├── .github/
+│   ├── CODEOWNERS
+│   ├── ISSUE_TEMPLATE/
+│   │   ├── incident.md                   
+│   │   └── postmortem.md                 
+│   ├── PULL_REQUEST_TEMPLATE.md
+│   └── workflows/
+│       ├── ci.yml                        
+│       ├── deploy.yml                    
+│       ├── rollback.yml                 
+│       ├── backup.yml                    
+│       └── lint-docs.yml                
+├── registry/
+│   ├── policy.md                         
+│   └── README.md
+├── security/
+│   ├── SECURITY.md                       
+│   └── threat-notes.md                  
+└── examples/
+    ├── env/
+    │   └── env.local.sample              
+    ├── queries/
+    │   ├── signoz-traces.txt             
+    │   └── signoz-logs.txt
+    └── webhooks/
+        └── alert-sample.json
+
+directory: 27 File: 64
+
+
+
+[2K[1G

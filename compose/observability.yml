@@ -1,0 +1,60 @@
+version: "3.9"
+
+networks:
+  observability_net:
+    driver: bridge
+
+volumes:
+  clickhouse_data: {}
+
+services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.3
+    restart: unless-stopped
+    networks: [observability_net]
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+      - ./config/clickhouse/config.d:/etc/clickhouse-server/config.d:ro
+
+  # SigNoz query API (frontend talks to this)
+  signoz-query-service:
+    image: signoz/query-service:latest
+    restart: unless-stopped
+    networks: [observability_net]
+    depends_on:
+      - clickhouse
+    environment:
+      - CLICKHOUSE_ADDRESS=clickhouse:9000
+      - CLICKHOUSE_DATABASE=signoz
+
+  # SigNoz UI (served via Traefik)
+  signoz-frontend:
+    image: signoz/frontend:latest
+    restart: unless-stopped
+    networks: [observability_net]
+    depends_on:
+      - signoz-query-service
+    expose:
+      - "3301"
+    environment:
+      - QUERY_SERVICE=http://signoz-query-service:8080
+
+  # OpenTelemetry Collector (OTLP ingest; routed via Traefik)
+  otel-collector:
+    image: signoz/signoz-otel-collector:latest
+    restart: unless-stopped
+    networks: [observability_net]
+    depends_on:
+      - clickhouse
+    expose:
+      - "4318"
+    environment:
+      - SPAN_STORAGE_TYPE=clickhouse
+      - CLICKHOUSE_ENDPOINT=clickhouse:9000
+      - CLICKHOUSE_DATABASE=signoz
+      - CLICKHOUSE_USERNAME=default
+      - CLICKHOUSE_PASSWORD=
+    # If you prefer a custom collector config, mount it:
+    # volumes:
+    #   - ./otel-config/collector-config.yaml:/etc/otel-collector-config.yaml:ro
+    # command: ["--config=/etc/otel-collector-config.yaml"]

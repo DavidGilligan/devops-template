@@ -1,0 +1,6 @@
+{
+  "text": "[incident] example-app latency SLO breached. p95=620ms. See dashboard: https://observability.example.com",
+  "severity": "critical",
+  "service": "example-app",
+  "link": "https://observability.example.com"
+}

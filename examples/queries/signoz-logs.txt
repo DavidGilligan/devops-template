@@ -1,0 +1,5 @@
+service_name = "example-app"
+| json
+| fields level, message, span_id, trace_id
+| sort by timestamp desc
+| limit 100

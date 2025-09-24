@@ -1,0 +1,10 @@
+{
+  "name": "High error rate",
+  "condition": "errors_per_minute > 10",
+  "for": "5m",
+  "severity": "warning",
+  "annotations": {
+    "summary": "Error rate above threshold",
+    "description": "Investigate recent deploys and service dependencies."
+  }
+}

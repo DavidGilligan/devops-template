@@ -1,0 +1,10 @@
+flowchart TB
+A[/Alert/] --> B[/Incident command: `/incident sev-2 <service>`/]
+B --> C[Channel created inc-YYYYMMDD-###]
+C --> D[Roles assigned: Commander, Ops, Comms]
+D --> E{Stabilising by 5 minutes?}
+E -->|Yes| F[Status updates per severity]
+F --> G[Hotfix after stable]
+E -->|No| H[Rollback job --> Previous stable image]
+H --> I[Confirm stable]
+I --> J[Bot exports timeline to postmortem]

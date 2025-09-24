@@ -1,0 +1,74 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      host:
+        description: "SSH host (e.g. user@server.example.com)"
+        required: true
+      service:
+        description: "Compose service to update (e.g. app if you add one)"
+        required: false
+        default: "app"
+      tag:
+        description: "Image tag to deploy (default: latest)"
+        required: false
+        default: "latest"
+
+permissions:
+  contents: read
+  packages: read
+
+env:
+  REGISTRY: ${{ vars.REGISTRY || 'ghcr.io' }}
+  IMAGE_NAME: ${{ vars.IMAGE_NAME || 'example-app' }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compute image ref
+        id: meta
+        run: |
+          IMAGE="${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}"
+          TAG="${{ github.event.inputs.tag }}"
+          echo "IMAGE=${IMAGE}" >> $GITHUB_OUTPUT
+          echo "TAG=${TAG}" >> $GITHUB_OUTPUT
+
+      # Uses a repo secret named SSH_KEY (private key). Public key must be on the server's authorised_keys.
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ github.event.inputs.host }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script_stop: true
+          script: |
+            set -e
+            cd ~/devops-template
+            echo "Pulling image ${{ steps.meta.outputs.IMAGE }}:${{ steps.meta.outputs.TAG }}"
+            docker login ${{ env.REGISTRY }} -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
+            docker pull ${{ steps.meta.outputs.IMAGE }}:${{ steps.meta.outputs.TAG }}
+
+            # Record current running tag for rollback
+            CURRENT=$(
+              docker ps --format '{{.Image}}' | grep '${{ env.IMAGE_NAME }}' || true
+            )
+            echo "Previous image: $CURRENT"
+            if [ -n "$CURRENT" ]; then
+              echo "$CURRENT" > .previous_image.txt
+            fi
+
+            # Update the compose override to use the new tag, or export env for compose
+            export IMAGE_OVERRIDE=${{ steps.meta.outputs.IMAGE }}:${{ steps.meta.outputs.TAG }}
+
+            # Compose up - assumes docker-compose.yml uses ${IMAGE_OVERRIDE} for the app image tag
+            docker compose pull
+            docker compose up -d
+
+            docker image prune -f
