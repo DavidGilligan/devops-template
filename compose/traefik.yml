@@ -1,10 +1,16 @@
 version: "3.9"
 
+networks:
+  observability_net:
+    driver: bridge
+
 services:
   traefik:
     image: traefik:v3.1
     container_name: traefik
     restart: unless-stopped
+    networks:
+      - observability_net
     command:
       - "--providers.docker=true"
       - "--providers.file.filename=/etc/traefik/dynamic.yml"
