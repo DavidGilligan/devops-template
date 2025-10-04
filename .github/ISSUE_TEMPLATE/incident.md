@@ -67,4 +67,4 @@ assignees:
 - [ ] Export timeline to postmortem on close
 
 - **Follow up owner:** <!-- name -->
-- **Due date:** <!-- YYYY-MM-DD -->
+- **Due date:** <!-- DD-MM-YYYY -->

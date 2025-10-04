@@ -1,14 +1,15 @@
 ---
 name: Postmortem
 about: Exported timeline and follow-up after an incident
-title: "postmortem-YYYYMMDD-###: <incident summary>"
-labels: ["postmortem"]
-assignees: []
+title: "inc-DDMMYYYY-###: SHORT SUMMARY HERE"
+labels: ["incident", etc.]
+assignees:
+  - oncall-devops
 ---
 
 ## Incident reference
-- **Incident ID:** <!-- inc-YYYYMMDD-### -->
-- **Date:** <!-- YYYY-MM-DD -->
+- **Incident ID:** <!-- inc-DDMMYYYY-### -->
+- **Date:** <!-- DD-MM-YYYY -->
 - **Service(s):** <!-- name(s) -->
 - **Severity:** <!-- Sev-1 | Sev-2 | Sev-3 -->
 - **Duration:** <!-- HH:MM -->
@@ -20,37 +21,41 @@ assignees: []
 > This section should be pre-populated by the bot with joins/leaves, key messages, and alerts.  
 > Fill in additional details as needed.
 
-- T0 — alert fired
-- T+2m — channel created
-- T+5m — rollback decision
-- T+15m — customer note posted
-- T+30m — mitigation confirmed
-- T+45m — system stable
-- T+50m — incident closed
+<!--- **T0:** alert fired "alert name" -->
+<!--- - T+2m — channel created -->
+<!--- - T+5m — rollback decision -->
+<!--- - T+15m — customer note posted -->
+<!--- - T+30m — mitigation confirmed -->
+<!--- - T+45m — system stable -->
+<!--- - T+50m — incident closed -->
 
 ## Root cause
-- **Immediate trigger:** <!-- what failed -->
-- **Contributing factors:** <!-- gaps in monitoring, process, infra -->
+- **Immediate trigger:** <!-- highlight the disruption -->
+- **Contributing factors:** <!-- gaps in monitoring, process, infrastructure -->
 
 ## Resolution
 - **Mitigation applied:** <!-- steps taken -->
-- **Rollback/hotfix:** <!-- describe -->
-- **Final fix:** <!-- describe -->
+- **Rollback/hotfix:** <!-- description -->
+- **Final fix:** <!-- description -->
 
 ## Lessons learned
-- What worked:
-- What didn’t:
-- Surprises:
+- **Successes:**  <!-- description -->
+- **Failures:** <!-- description -->
+- **Additional Comments:** <!-- description -->
 
 ## Action items
-- [ ] Add or tune alert
-- [ ] Update runbook
-- [ ] Improve rollback testing
-- [ ] Schedule drill
+- [ ] Fix or mitigate root cause
+- [ ] Add or tune alert / monitoring
+- [ ] Improve or add automated tests
+- [ ] Update runbook / documentation
+- [ ] Verify rollback / restore procedure
+- [ ] Schedule drill / game day
+- [ ] Confirm service ownership
 - **Owner:** <!-- name -->
-- **Due:** <!-- YYYY-MM-DD -->
+- **Due:** <!-- DD-MM-YYYY -->
 
 ## Sign-off
 - **Incident commander:** <!-- name -->
 - **Reviewed by:** <!-- lead / manager -->
-- **Date:** <!-- YYYY-MM-DD -->
+- **Follow-up owner confirmed:** <!-- name -->
+- **Date:** <!-- DD-MM-YYYY -->
