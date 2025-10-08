@@ -1,0 +1,34 @@
+
+# Git
+.git                            # don’t copy Git history into image
+.gitignore
+
+# Env and secrets
+.env
+.env.*.local
+config/traefik/acme.json
+
+# Python cache
+__pycache__/
+*.pyc                           # single Python cache files
+*.pyo
+*.pyd
+.venv/
+
+# Node
+node_modules/
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs
+*.log                           # local runtime logs
+
+# Docs, tests, and examples
+docs/                # documentation not needed inside container
+examples/            # sample configs not needed inside container
+*.md                 # markdown docs
+tests/               # unit tests (CI runs them, but production image doesn’t need them)

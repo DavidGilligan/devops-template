@@ -1,4 +1,5 @@
-version: "3.9"
+# compose/observability.yml
+name: devops-template
 
 networks:
   observability_net:
@@ -6,28 +7,43 @@ networks:
 
 volumes:
   clickhouse_data: {}
+  signoz_data: {}
 
 services:
   clickhouse:
     image: clickhouse/clickhouse-server:24.3
     restart: unless-stopped
     networks: [observability_net]
+    environment:
+      - CLICKHOUSE_USER=default
+      - CLICKHOUSE_PASSWORD=devpass
+      - CLICKHOUSE_DB=signoz
     volumes:
       - clickhouse_data:/var/lib/clickhouse
-      - ./config/clickhouse/config.d:/etc/clickhouse-server/config.d:ro
+      - ./config/clickhouse/config.d/macros.xml:/etc/clickhouse-server/config.d/macros.xml:ro
+    healthcheck:
+      test: ["CMD-SHELL", "bash -lc '</dev/tcp/127.0.0.1/9000'"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
 
-  # SigNoz query API (frontend talks to this)
   signoz-query-service:
     image: signoz/query-service:latest
     restart: unless-stopped
     networks: [observability_net]
     depends_on:
-      - clickhouse
+      clickhouse:
+        condition: service_healthy
+    expose:
+      - "8080"
     environment:
       - CLICKHOUSE_ADDRESS=clickhouse:9000
       - CLICKHOUSE_DATABASE=signoz
+      - CLICKHOUSE_USERNAME=default
+      - CLICKHOUSE_PASSWORD=devpass
+    volumes:
+      - signoz_data:/var/lib/signoz
 
-  # SigNoz UI (served via Traefik)
   signoz-frontend:
     image: signoz/frontend:latest
     restart: unless-stopped
@@ -39,22 +55,29 @@ services:
     environment:
       - QUERY_SERVICE=http://signoz-query-service:8080
 
-  # OpenTelemetry Collector (OTLP ingest; routed via Traefik)
   otel-collector:
     image: signoz/signoz-otel-collector:latest
-    restart: unless-stopped
-    networks: [observability_net]
+    command:
+      - --config=/etc/otel/config.yaml
     depends_on:
-      - clickhouse
+      clickhouse:
+        condition: service_healthy
+        required: true
+    restart: unless-stopped
+    networks:
+      - observability_net
     expose:
       - "4318"
     environment:
-      - SPAN_STORAGE_TYPE=clickhouse
-      - CLICKHOUSE_ENDPOINT=clickhouse:9000
-      - CLICKHOUSE_DATABASE=signoz
-      - CLICKHOUSE_USERNAME=default
-      - CLICKHOUSE_PASSWORD=
-    # If you prefer a custom collector config, mount it:
-    # volumes:
-    #   - ./otel-config/collector-config.yaml:/etc/otel-collector-config.yaml:ro
-    # command: ["--config=/etc/otel-collector-config.yaml"]
+      LOG_LEVEL: "info"
+      SPAN_STORAGE_TYPE: "clickhouse"
+      CLICKHOUSE_DSN: "tcp://clickhouse:9000?username=default&password=devpass&database=signoz"
+      CLICKHOUSE_ENDPOINT: "tcp://clickhouse:9000"
+      CLICKHOUSE_ADDRESS: "clickhouse:9000"
+      CLICKHOUSE_HOST: "clickhouse"
+      CLICKHOUSE_PORT: "9000"
+      CLICKHOUSE_DATABASE: "signoz"
+      CLICKHOUSE_USER: "default"
+      CLICKHOUSE_PASSWORD: "devpass"
+    volumes:
+      - ./compose/otel-config/config.yaml:/etc/otel/config.yaml:ro

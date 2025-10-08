@@ -24,9 +24,34 @@ services:
       file: compose/observability.yml
       service: signoz-frontend
   otel-collector:
-    extends:
-      file: compose/observability.yml
-      service: otel-collector
+    image: signoz/signoz-otel-collector:latest
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+        required: true
+    environment:
+      CLICKHOUSE_ADDRESS: clickhouse:9000
+      CLICKHOUSE_HOST: clickhouse
+      CLICKHOUSE_PORT: "9000"
+      CLICKHOUSE_DATABASE: signoz
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: devpass
+      CLICKHOUSE_ENDPOINT: tcp://clickhouse:9000
+      CLICKHOUSE_DSN: tcp://clickhouse:9000?username=default&password=devpass&database=signoz
+      SPAN_STORAGE_TYPE: clickhouse
+      LOG_LEVEL: info
+    expose:
+      - "4318"
+    volumes:
+      - type: bind
+        source: C:/Users/david/devops-template/compose/otel-config/config.yaml
+        target: /etc/otel/config.yaml
+        read_only: true
+    networks:
+      - observability_net
+    restart: unless-stopped
+
+
 
 networks:
   observability_net:
@@ -34,3 +59,4 @@ networks:
 
 volumes:
   clickhouse_data: {}
+  signoz_data: {}

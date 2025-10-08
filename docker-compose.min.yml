@@ -1,0 +1,73 @@
+﻿name: devops-template-min
+
+networks:
+  obs:
+    driver: bridge
+
+volumes:
+  ch_data: {}
+  signoz_data: {}
+
+services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.3
+    restart: unless-stopped
+    networks: [obs]
+    environment:
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: devpass
+      CLICKHOUSE_DB: signoz
+    volumes:
+      - ch_data:/var/lib/clickhouse
+    healthcheck:
+      test: ["CMD-SHELL", "bash -lc '</dev/tcp/127.0.0.1/9000'"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+  signoz-query-service:
+    image: signoz/query-service:latest
+    restart: unless-stopped
+    networks: [obs]
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    environment:
+      CLICKHOUSE_ADDRESS: clickhouse:9000
+      CLICKHOUSE_DATABASE: signoz
+      CLICKHOUSE_USERNAME: default
+      CLICKHOUSE_PASSWORD: devpass
+    expose:
+      - "8080"
+    volumes:
+      - signoz_data:/var/lib/signoz
+
+  signoz-frontend:
+    image: signoz/frontend:latest
+    restart: unless-stopped
+    networks: [obs]
+    depends_on:
+      - signoz-query-service
+    ports:
+      - "3301:3301"
+    environment:
+      QUERY_SERVICE: http://signoz-query-service:8080
+    expose:
+      - "3301"
+
+  otel-collector:
+    image: signoz/signoz-otel-collector:latest
+    restart: unless-stopped
+    networks: [obs]
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    expose:
+      - "4318"
+    environment:
+      LOG_LEVEL: info
+      SPAN_STORAGE_TYPE: clickhouse
+      CLICKHOUSE_ENDPOINT: tcp://clickhouse:9000
+      CLICKHOUSE_DATABASE: signoz
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: devpass

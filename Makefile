@@ -25,4 +25,6 @@ backup:
 	bash scripts/backup.sh
 
 restore:
-	@echo "Usage: make restore BK=ch-backup-YYYYmmdd-HHMMSS"; exit 1
+	# Pass the backup ID (timestamped name) when restoring, e.g.:
+	# make restore BK=ch-backup-20251004-103000
+	bash scripts/restore.sh $(BK)

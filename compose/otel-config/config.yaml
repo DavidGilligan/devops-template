@@ -8,21 +8,24 @@ processors:
   batch: {}
 
 exporters:
-  clickhouse:
-    endpoint: tcp://clickhouse:9000
-    database: signoz
+  clickhousetraces:
+    dsn: ${CLICKHOUSE_DSN}
+  signozclickhousemetrics:
+    dsn: ${CLICKHOUSE_DSN}
+  clickhouselogsexporter:
+    dsn: ${CLICKHOUSE_DSN}
 
 service:
   pipelines:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [clickhouse]
+      exporters: [clickhousetraces]
     metrics:
       receivers: [otlp]
       processors: [batch]
-      exporters: [clickhouse]
+      exporters: [signozclickhousemetrics]
     logs:
       receivers: [otlp]
       processors: [batch]
-      exporters: [clickhouse]
+      exporters: [clickhouselogsexporter]

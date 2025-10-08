@@ -56,7 +56,7 @@ jobs:
             # Export override so compose uses the chosen image
             export IMAGE_OVERRIDE="$PREV_IMAGE"
 
-            # Restart services
+            # Restart services  
             docker compose pull
             docker compose up -d
 

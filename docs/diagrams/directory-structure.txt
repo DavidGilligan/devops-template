@@ -1,6 +1,4 @@
-
-C:\Users\david\devops-template
-devops-template/
+Lightweight Pipeline
 ├── .env.example                          
 ├── .gitignore
 ├── .gitattributes
@@ -94,7 +92,3 @@ devops-template/
         └── alert-sample.json
 
 directory: 27 File: 64
-
-
-
-[2K[1G

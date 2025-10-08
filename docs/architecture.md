@@ -1,6 +1,6 @@
 # System Architecture
 
-The final architecture provides a lightweight yet production-aware pipeline:
+The final architecture provides a lightweight yet production capable pipeline:
 - CI builds Docker images and pushes to a registry.
 - Runtime uses Docker and Compose.
 - Observability uses OpenTelemetry → Collector → ClickHouse → SigNoz.

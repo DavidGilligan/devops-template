@@ -1,23 +1,24 @@
+
 # Env and secrets
-.env
-.env.*.local
-config/traefik/acme.json
+.env                 
+.env.*.local         
+config/traefik/acme.json  # TLS cert(s) with private key(s)
 
 # Python
-__pycache__/
-*.pyc
+__pycache__/         
+*.pyc                # single Python cache files
 *.pyo
 *.pyd
-.venv/
+.venv/               # local virtual environment folder
 
 # OS and editors
-.DS_Store
-Thumbs.db
-.vscode/
-.idea/
+.DS_Store            # macOS metadata
+Thumbs.db            # Windows metadata
+.vscode/             
+.idea/               
 
-# Docker
-*.log
+# Docker and logs
+*.log                
 
-# Node tools used in linting
-node_modules/
+# Node (used for linting)
+node_modules/        # downloaded packages, recreate with npm install

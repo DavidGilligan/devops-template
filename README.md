@@ -1,10 +1,12 @@
 # Lightweight DevOps Template
 
-This repository provides a reference implementation of a lightweight DevOps pipeline designed for small-scale software projects (SSPs). It was developed as part of an MSc dissertation at the University of Abertay. The template aims to minimise overhead and administrative burden while enabling repeatable CI, basic CD, and practical observability that non-specialist developers can adopt quickly.
+This repository provides an implementation of a lightweight DevOps pipeline designed for small-scale software projects (SSPs). It was developed as part of an MSc Computer Science dissertation at the University of Abertay. The template aims to minimise overhead and administrative burden while enabling repeatable CI, basic CD, and practical observability that non-specialist developers can adopt quickly.
 
 ## Project Overview
 
 Conventional DevOps pipelines can be excessive for small projects, leading teams to rely on manual steps that slow delivery and increase risk. This template addresses that gap with a modular structure, a simple CI workflow, and an optional, containerised observability stack that can be started locally with a single command.
+
+To make adjustments to the template to suit org needs, please change or delete the CODEOWNERS file.
 
 ## Features
 
@@ -21,8 +23,8 @@ devops-template/
 ├── .github/workflows/ci.yml                # GitHub Actions workflow
 ├── otel-config/collector-config.yaml       # OpenTelemetry Collector configuration
 ├── docker-compose.yml                      # Local SigNoz + Collector stack
-├── setup.sh                                # One-command startup script
-├── app/                                    # Example instrumented Python app
+├── setup.sh                                # Single command startup script
+├── app/                                    # Example Python app
 │   └── main.py
 ├── README.md
 └── .gitignore
@@ -37,7 +39,7 @@ devops-template/
 
 1) Clone the repository
 
-   git clone https://github.com/DavidGillian/devops-template.git
+   git clone https://github.com/DavidGillian/lightweight-pipeline.git
    cd devops-template
 
 2) Start the local observability stack (optional but recommended)
@@ -51,6 +53,8 @@ devops-template/
 
    python app/main.py
 
+   Open SigNoz and check the Traces tab. You should see a trace from `example-app`.
+
 4) Push changes to trigger CI
 
    git add .
@@ -59,17 +63,17 @@ devops-template/
 
 ## Configuration
 
-- OpenTelemetry Collector:
+- **OpenTelemetry Collector:**
   - Edit otel-config/collector-config.yaml to change receivers, processors, and exporters.
   - Default configuration listens for OTLP on ports 4317 (gRPC) and 4318 (HTTP) and exports to ClickHouse via SigNoz.
-- Docker Compose:
+- **Docker Compose:**
   - docker-compose.yml defines the local SigNoz and Collector services. Adjust ports or volumes if required.
-- GitHub Actions:
+- **GitHub Actions:**
   - .github/workflows/ci.yml defines a simple CI workflow. Extend with linting, tests, or build steps to suit your stack.
 
 ## Reusing the Template for a New Project
 
-1) Use this repository as a template or copy the folder structure into your project.
+1) Use this repository as a template/copy the folder structure into your project.
 2) Keep .github/workflows/ci.yml to retain CI on push/PR.
 3) Keep docker-compose.yml and otel-config/collector-config.yaml if you want local observability.
 4) Replace app/ with your application, adding minimal OpenTelemetry instrumentation where useful.
@@ -77,26 +81,26 @@ devops-template/
 
 ## CI/CD Notes
 
-- The default workflow checks out the code, sets up a runtime environment, installs dependencies for the example app, and runs a basic script.
-- Extend the workflow to include unit tests, static analysis, packaging, or deployment steps as appropriate.
-- If you wish to add deployment, keep it optional and environment-agnostic to preserve the template’s lightweight nature.
+- The default workflow checks out the code, sets up a runtime environment, installs dependencies for the example app then runs a basic script.
+- Extend the workflow to include unit tests, static analysis, packaging, or deployment steps as required.
+- If you wish to add deployment, preserve the template’s lightweight nature.
 
 ## Observability Notes
 
-- The local stack is intended for development and demonstration. For production, host SigNoz securely or integrate with your organisation’s existing monitoring platform.
+- The local stack is intended for development and demonstration. For production host SigNoz securely or integrate with your organisation’s existing monitoring platform.
 - Minimal tracing is demonstrated in app/main.py. You can add logging and metrics using OpenTelemetry SDKs for your language of choice.
 - Keep instrumentation focused on key paths (e.g., request handling, critical jobs, external calls) to balance visibility and overhead.
 
 ## Troubleshooting
 
-- Containers do not start:
+- **Containers do not start:**
   - Confirm Docker is running and that required ports (e.g., 3301, 4317, 4318, 9000) are available.
   - Run: docker compose logs -f to inspect service logs.
-- No traces visible in SigNoz:
-  - Check app instrumentation endpoint matches the Collector (localhost:4317 by default).
-  - Verify the Collector is receiving data (check Collector logs).
-- CI fails on GitHub:
-  - Open the Actions tab to review logs. Ensure dependencies and runtime versions match your project.
+- **No traces visible in SigNoz:**
+  - Check app inst endpoint matches the Collector (localhost:4317 by default).
+  - Verify the Collector is receiving data (Collector logs).
+- **CI failure on GitHub:**
+  - Open the Actions tab to review logs, ensuring dependencies and runtime versions match your project.
 
 ## Research Context
 
@@ -107,8 +111,8 @@ This template supports an investigation into the viability of lightweight DevOps
 
 ## Contributing
 
-Feedback and contributions are welcome. Please open an issue to discuss proposed changes or submit a pull request with clear rationale and testing notes.
+Feedback and contributions are welcome. Please open an issue to discuss proposed changes or submit a pull request with clear reasoning and testing notes.
 
-## Licence
+## License
 
-This project is released under the MIT Licence. See the LICENCE file for details.
+This project is released under the MIT License. See the LICENSE file for details.
